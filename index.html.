@@ -1,0 +1,837 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Equity Adjusters Interactive Handbook</title>
+  <style>
+    :root {
+      --bg: #020617;
+      --panel: #0f172a;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --cyan: #22d3ee;
+      --cyan-soft: #67e8f9;
+      --line: rgba(255,255,255,.12);
+      --soft: rgba(255,255,255,.055);
+      --green: #34d399;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at top left, rgba(34,211,238,.14), transparent 30rem),
+        radial-gradient(circle at bottom right, rgba(14,165,233,.12), transparent 34rem),
+        var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.5;
+    }
+    button, input, textarea { font-family: inherit; }
+    button { cursor: pointer; }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      border-bottom: 1px solid var(--line);
+      background: rgba(2, 6, 23, .92);
+      backdrop-filter: blur(14px);
+    }
+
+    .topbar {
+      max-width: 1220px;
+      margin: 0 auto;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .brand { display: flex; align-items: center; gap: 13px; }
+    .logo {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border-radius: 18px;
+      background: var(--cyan);
+      color: #020617;
+      font-weight: 900;
+      font-size: 20px;
+      box-shadow: 0 14px 32px rgba(34,211,238,.2);
+    }
+    .brand small {
+      display: block;
+      margin-bottom: 2px;
+      color: var(--cyan-soft);
+      text-transform: uppercase;
+      letter-spacing: .22em;
+      font-weight: 800;
+      font-size: 11px;
+    }
+    .brand h1 { margin: 0; font-size: clamp(18px, 3vw, 26px); line-height: 1.1; }
+
+    .menu-btn {
+      display: none;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      color: var(--text);
+      background: transparent;
+      padding: 10px 13px;
+      font-weight: 800;
+    }
+
+    .layout {
+      max-width: 1220px;
+      margin: 0 auto;
+      padding: 24px 18px 42px;
+      display: grid;
+      grid-template-columns: 310px 1fr;
+      gap: 24px;
+    }
+    aside { position: sticky; top: 94px; align-self: start; }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background: var(--soft);
+      box-shadow: 0 18px 45px rgba(0,0,0,.18);
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    label, .label {
+      display: block;
+      color: #cbd5e1;
+      font-size: 14px;
+      font-weight: 800;
+      margin: 0 0 8px;
+    }
+
+    input, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(2,6,23,.72);
+      color: var(--text);
+      outline: none;
+      padding: 12px 13px;
+      font-size: 15px;
+    }
+    textarea { min-height: 96px; resize: vertical; }
+    input:focus, textarea:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 0 0 3px rgba(34,211,238,.14);
+    }
+
+    .progress-wrap { height: 12px; background: #1e293b; border-radius: 999px; overflow: hidden; }
+    .progress-bar { height: 100%; width: 0%; background: var(--cyan); transition: width .25s ease; }
+
+    nav button {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      text-align: left;
+      border: 1px solid transparent;
+      border-radius: 18px;
+      background: transparent;
+      color: var(--text);
+      padding: 12px;
+      margin: 5px 0;
+      transition: .18s ease;
+    }
+    nav button:hover { background: rgba(255,255,255,.08); }
+    nav button.active { background: var(--cyan); color: #020617; }
+
+    .dot { width: 8px; height: 8px; border-radius: 999px; background: var(--cyan); flex: none; }
+    nav button.active .dot { background: #020617; }
+    .nav-title { display: block; font-weight: 900; font-size: 14px; }
+    .nav-sub { display: block; opacity: .72; font-size: 12px; margin-top: 2px; }
+
+    .hero {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 34px;
+      background: linear-gradient(135deg, rgba(34,211,238,.22), rgba(15,23,42,.94), rgba(2,6,23,.98));
+      padding: clamp(26px, 4vw, 46px);
+      box-shadow: 0 22px 64px rgba(0,0,0,.24);
+    }
+    .pill {
+      display: inline-flex;
+      border: 1px solid rgba(103,232,249,.36);
+      background: rgba(34,211,238,.1);
+      color: var(--cyan-soft);
+      border-radius: 999px;
+      padding: 7px 13px;
+      font-weight: 900;
+      font-size: 13px;
+    }
+    .hero h2 {
+      margin: 18px 0 12px;
+      max-width: 760px;
+      font-size: clamp(42px, 7vw, 76px);
+      line-height: .94;
+      letter-spacing: -.05em;
+    }
+    .hero p { max-width: 760px; color: #cbd5e1; font-size: 18px; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: 13px;
+      margin-top: 24px;
+    }
+    .stat {
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: rgba(255,255,255,.055);
+      padding: 17px;
+    }
+    .stat strong {
+      display: block;
+      color: var(--cyan-soft);
+      font-size: 30px;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px; }
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(15,23,42,.82);
+      border-radius: 18px;
+      padding: 12px;
+      margin: 10px 0;
+    }
+    .step-num {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      background: var(--cyan);
+      color: #020617;
+      font-weight: 900;
+      flex: none;
+    }
+    .cycle-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+    .cycle-step {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: rgba(15,23,42,.82);
+      padding: 15px;
+      text-align: center;
+    }
+    .cycle-step small { color: var(--cyan-soft); font-weight: 800; }
+
+    .assignment-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; }
+
+    article {
+      border: 1px solid var(--line);
+      border-radius: 32px;
+      background: rgba(255,255,255,.045);
+      overflow: hidden;
+      box-shadow: 0 18px 45px rgba(0,0,0,.18);
+      margin-bottom: 18px;
+    }
+    .article-head {
+      width: 100%;
+      border: 0;
+      color: var(--text);
+      background: transparent;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      text-align: left;
+      padding: 20px;
+    }
+    .badge {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border-radius: 18px;
+      background: var(--cyan);
+      color: #020617;
+      font-weight: 900;
+      flex: none;
+    }
+    .article-meta { margin: 0 0 5px; color: var(--cyan-soft); font-size: 14px; font-weight: 900; }
+    .article-head h2 { margin: 0; font-size: 24px; }
+    .article-body { border-top: 1px solid var(--line); padding: 22px; }
+    .article-body h3 { color: var(--cyan-soft); margin: 24px 0 8px; font-size: 20px; }
+    .article-body p {
+      color: #dbeafe;
+      line-height: 1.72;
+      margin: 0 0 12px;
+      white-space: pre-wrap;
+    }
+    mark { background: #a5f3fc; color: #020617; border-radius: 5px; padding: 0 3px; }
+
+    .btn-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+    .btn {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: transparent;
+      color: var(--text);
+      font-weight: 900;
+      padding: 10px 14px;
+      transition: .18s ease;
+    }
+    .btn:hover { background: rgba(255,255,255,.08); }
+    .btn-primary { background: var(--cyan); color: #020617; border-color: var(--cyan); }
+    .btn-done { background: var(--green); color: #022c22; border-color: var(--green); }
+
+    .fillable {
+      margin-top: 26px;
+      border: 1px solid rgba(103,232,249,.3);
+      border-radius: 28px;
+      background: rgba(34,211,238,.06);
+      padding: 22px;
+    }
+    .fillable h3 { margin-top: 0; color: var(--text); }
+    .fillable-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; margin-bottom: 18px; }
+    .field-row { display: grid; grid-template-columns: 34px 1fr; gap: 9px; align-items: start; margin-bottom: 10px; }
+    .field-row span { color: var(--cyan-soft); font-weight: 900; padding-top: 12px; }
+    .two-col { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 18px; }
+
+    .submit-card {
+      border: 1px solid rgba(103,232,249,.34);
+      border-radius: 32px;
+      background: rgba(34,211,238,.09);
+      padding: 24px;
+      box-shadow: 0 18px 45px rgba(0,0,0,.18);
+    }
+    .submit-card h2 { color: var(--cyan-soft); margin: 0 0 8px; }
+    footer {
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: var(--soft);
+      text-align: center;
+      color: var(--muted);
+      padding: 22px;
+      margin-top: 18px;
+    }
+
+    @media print {
+      header, aside, .btn-row, .submit-card button, .menu-btn { display: none !important; }
+      body { background: white; color: black; }
+      .layout { display: block; }
+      .card, .hero, article, .submit-card, .fillable {
+        background: white;
+        color: black;
+        box-shadow: none;
+        border-color: #bbb;
+      }
+      .article-body p, .hero p, footer { color: black; }
+      input, textarea { border: 1px solid #777; color: black; background: white; }
+    }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { display: none; position: static; }
+      aside.open { display: block; }
+      .menu-btn { display: inline-flex; }
+      .stats, .grid-2, .assignment-grid, .fillable-grid, .two-col { grid-template-columns: 1fr; }
+      .cycle-grid { grid-template-columns: 1fr; }
+      .article-head { align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo">EA</div>
+        <div>
+          <small>Equity Adjusters</small>
+          <h1>Interactive Handbook</h1>
+        </div>
+      </div>
+      <button class="menu-btn" id="menuButton">Menu</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside id="sidebar">
+      <div class="card">
+        <label for="search">Search handbook</label>
+        <input id="search" type="search" placeholder="Search claims, hail, close...">
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;gap:12px;margin-bottom:10px;font-size:14px;font-weight:900;">
+          <span>Training Progress</span>
+          <span id="progressText" style="color:var(--cyan-soft)">0%</span>
+        </div>
+        <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+      </div>
+
+      <nav class="card" id="nav"></nav>
+
+      <button class="btn btn-primary" style="width:100%;" onclick="window.print()">Print / Save as PDF</button>
+    </aside>
+
+    <section id="content">
+      <section class="hero">
+        <span class="pill">Interactive training handbook</span>
+        <h2>Fairness. Balance. Advocacy.</h2>
+        <p>Use the navigation, search, expandable modules, fillable assignment fields, progress tracking, and submit form to study the Equity Adjusters handbook.</p>
+
+        <div class="stats">
+          <div class="stat"><strong>31</strong><span>Original pages represented</span></div>
+          <div class="stat"><strong>8</strong><span>Interactive learning modules</span></div>
+          <div class="stat"><strong>Pitch</strong><span>Open self inspection script added</span></div>
+        </div>
+      </section>
+
+      <section class="grid-2" style="margin-top:18px;">
+        <div class="card">
+          <h2>Claims Process Tracker</h2>
+          <div id="claimSteps"></div>
+        </div>
+        <div class="card">
+          <h2>Sales Cycle</h2>
+          <div class="cycle-grid" id="salesCycle"></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Interactive Assignments</h2>
+        <div class="assignment-grid" id="quickAssignments"></div>
+      </section>
+
+      <section id="articles"></section>
+
+      <section class="submit-card" id="submitSection">
+        <h2>Submit Your Responses</h2>
+        <p>Enter your name and click submit. Your email app will open with your completed answers addressed to info@equityadjuster.com.</p>
+
+        <div class="two-col">
+          <div>
+            <label for="submitName">Your Name</label>
+            <input id="submitName" placeholder="Type your name here...">
+          </div>
+          <div>
+            <label for="submitContact">Email or Phone, optional</label>
+            <input id="submitContact" placeholder="Optional contact information...">
+          </div>
+        </div>
+
+        <button class="btn btn-primary" style="margin-top:16px;" id="submitButton">Submit</button>
+      </section>
+
+      <footer>
+        Equity Adjusters interactive handbook. Source wording has been preserved in the training modules.
+      </footer>
+    </section>
+  </main>
+
+  <script>
+    const DATA = {
+      sections: [
+        {
+          id: "background",
+          title: "Company Background",
+          tag: "Start Here",
+          pages: "Page 1",
+          content: "Equity Adjusters stands for fairness and Balance. The company was founded in 2020 and has recovered thousands of dollars for our clients. We are an advocacy group that provides services and products that further protect, repair, and add value to the property owner’s investment. The focus for this manual is our insurance claim representation service, in which we represent property owners with their insurance claims to maximize their settlements. We handle claims such as wind, hail, fire, flood, and vandalism. Essentially, any claim a property owner might have, we handle it. The focus for this manual, are residential and commercial roofing claims for losses occurred by wind and hail damage."
+        },
+        {
+          id: "who-why-commit",
+          title: "Who, Why, Commit",
+          tag: "Assignment 1",
+          pages: "Pages 2-3",
+          content: "WHO are you?\\nI AM\\nIt is important that you know who you are. You are more than the name that was given to you. We want to know what it is that makes you, you! There is much power behind the I am statement. Think of the three best attributes that best describe who you are.\\n\\nUnderstanding The WHY Factor\\n“Whatever you want, go ALL IN and DOMINATE, learn it, eat it, sleep it, breathe it and believe it”\\n- Grant Cardone\\n\\nWhy are you here? Is it money? Is it a fresh start? Does the idea of being your own boss motivate you? Maybe you have dreams of traveling the world. Bottom line, you need to understand your WHY. Making money by itself, is not the WHY. The real question is, what are you going to do with the money you earn? That is your real motivation.\\n\\nCommitment\\nGO ALL IN\\nWhat do you bring to the table that is unique? What commitment are you going to make for yourself and Equity Adjusters? Decide now, what are three things you are going to commit to that will benefit yourself as well as your team?\\n\\nCombining your WHO, WHY, COMMIT\\nNow that you have your three attributes, motivating factors, and commitments, you are ready to create your statements. The first statement will be your WHO statement. Example: I AM an intelligent, diligent, and caring member of team Equity Adjusters!\\n\\nAssignment 1\\nFill out each section and use the data from the questions to create your I am statement and your commitment statement."
+        },
+        {
+          id: "vision-habits",
+          title: "Vision Statement & Habits",
+          tag: "Personal Growth",
+          pages: "Pages 3-7",
+          content: "Vision Statement\\n“He who says he can, and he who says he can’t, are both usually right”\\n\\nA vision statement should be a paragraph or two that describes your targets in your personal life, business/company, and financial situation over the next year. It is something that you can read daily to remind yourself what you are going to accomplish over the next twelve months. Think BIG! If your goals don’t motivate you than they are not big enough.\\n\\nVision Statement Areas\\nPersonal: How do you want your life to look? How do you want your health to be? What places do you want to go? Where will you live? What will you drive? How will others see you?\\n\\nBusiness/Company: What will your position be? How will you grow Equity Adjusters? What market will you be working? Who will be on your team? What can you bring to the table that others cannot? How much revenue do you intend to bring? How big do you want to grow this company?\\n\\nFinancial: How much will you earn? Do you want to be debt free? Will you have residual income? What will you do with the money you want to earn?\\n\\nDevelop Habits\\nDeveloping habits are what shape the kind of life you want. It is important to focus on the end result and what you want in the long term, but it is what you do every SINGLE day that matters more than anything."
+        },
+        {
+          id: "industry",
+          title: "Industry Knowledge",
+          tag: "Insurance Basics",
+          pages: "Pages 8-10",
+          content: "HOW BIG IS THE INDUSTRY?\\nWE ARE IN A RECESSION PROOF INDUSTRY\\nPeople will always have to protect their investments with insurance, and catastrophic events are continuing to become more frequent.\\n\\nGENERAL TERMS\\nInsurer: Insurance Company providing insurance for the insured.\\nInsured: The individual or business who has insurance.\\nPolicy Holder: Individual or business that has ownership of the insurance policy.\\nPremium: The cost of insurance the policy holder pays to keep insurance effective.\\nDeductible: In the event of an insurance claim, most policies require the insured to pay a deductible AKA Co-Pay on a per claim basis.\\nLoss Peril: A specific risk that is covered under the terms of the insurance policy.\\nScope of work: The work that is to be carried out under a contract to complete a project.\\nDepreciation: Decrease in value due to wear and tear, age, decline in price, decay, etc.\\nDwelling: Livable space. House, apartment, garage, etc.\\nBenefit: Insurance benefits are the payments your insurance provider guarantees to make after covered services under an insurance policy.\\nExclusion: A loss risk that is not covered under an insurance policy.\\n\\nWHAT IS AN INSURANCE CLAIMS ADJUSTER?\\nThere are three types of insurance adjusters: Staff Adjusters, Independent Adjusters, and Public Adjusters. A Public adjuster is hired by the policy holder to legally represent the policy holder to maximize the insurance claim and protect the interests of the insured.\\n\\nHOW IS AN INSURANCE CLAIM PAID OUT?\\nClaims are typically broken up into two payments: Actual Cash Value (ACV) and Replacement Cost Value (RCV). Recoverable depreciation may be paid after the insured completes the repairs and provides proof such as an invoice and photos."
+        },
+        {
+          id: "storm-damage",
+          title: "Identifying Storm Damage",
+          tag: "Field Training",
+          pages: "Pages 10-16",
+          content: "IDENTIFYING STORM DAMAGE\\nHAIL DAMAGE\\nHail can damage roofing, soft metals, siding, paint, air conditioning units, storage sheds, windows, window screens, gutters, solar panels, stucco, personal property, and essentially any exposed property.\\n\\nSPOTTING HAIL DAMAGE\\nWhen prospecting a neighborhood, it is important to know and understand which direction specific storms come from and hit. Once you know what direction a storm hits, you can look for signs of damage such as dents in the garage door, dents on gutters, paint chipping, air conditioning coils, etc.\\n\\nTest Square\\nTest squares are used to determine if a roofing system deserves to be replaced due to hail damage. To qualify for a roof replacement, typically you need 5+ hail strikes in a 10 ft x 10 ft square area on each slope for insurance to approve.\\n\\nWIND DAMAGE TO ROOFING\\nWith most violent storms, damaging wind is always a factor. The more obvious signs are blown shingles, tiles, or uplifted metal. The less obvious signs are shingle creasing and tile cracking.\\n\\nINTERIOR DAMAGE (ROOF LEAKS)\\nRoof leaks are common, especially with older roofs. Insurance may deny interior leaks if it has been an ongoing problem for a long time. The leak must be sudden and a direct result from an issue with the roof."
+        },
+        {
+          id: "claims-appraisal",
+          title: "Claims & Appraisal Process",
+          tag: "Operations",
+          pages: "Pages 17-18",
+          content: "THE CLAIMS PROCESS\\n1. Meet - A certified Equity Adjusters representative meets with the property owner, reviews the insurance policy, and gets all paperwork completed.\\n2. Initial Prequalifying Inspection - A certified inspector documents damage and creates a forensic report.\\n3. File Claim/Schedule Insurance Inspection - The claim is filed and insurance assigns an adjuster.\\n4. Insurance Inspection - The licensed public adjuster meets with the insurance company on the property.\\n5. Negotiations/Estimate Review - The estimate is reviewed and negotiated until common ground is met.\\n6. Meet with Policy Holder - The ACV check is reviewed and repair options are discussed.\\n7. Construction - Equity Adjusters contractor completes the construction work.\\n8. Final invoicing/close file - Insurance is invoiced and the RCV is processed.\\n\\nAPPRAISAL PROCESS\\nIf the public adjuster and insurance adjuster cannot agree on a claim, the claim may go to appraisal. Both sides hire third-party appraisers. If the appraisers cannot agree, an umpire may make the final decision."
+        },
+        {
+          id: "sales",
+          title: "Storm Restoration Sales",
+          tag: "Sales Training",
+          pages: "Pages 19-31",
+          content: "Storm Restoration Sales\\nYou need to be SOLD on selling. The most important sale you will ever make is to yourself. When you fully believe in the value Equity Adjusters brings to property owners, and you are convinced that sales is for you, only then will you achieve.\\n\\nWhy choose storm restoration sales?\\nWe bring people MONEY. We do not charge clients directly for our services. The more money we win for the property owner, the more you make. There is no cap on your income.\\n\\nDoor to Door Sales\\nCold calling, canvassing, and door knocking are some of the most effective ways to generate business. Common myths are that everyone will be rude, nobody will listen, and nobody likes door to door salespeople. In reality, many people are nice and will listen.\\n\\nNUMBER ONE RULE OF SELLING\\nAlways, always, ALWAYS agree with the customer. Any objection or response from a prospect should first be met with agreement and understanding.\\n\\nSALES CYCLE\\nPre-opener, Intro/Greeting, Fact Finding/Qualifying, Presentation, Close, Referral.\\n\\nFOLLOW UP\\nFollow up is the single most important skill you must develop. Most people need multiple contacts before making a decision. Use text messages, personal visits, phone calls, video calls, email, and written letters.\\n\\nCOLD CALLING GUIDELINES\\nBe honest, transparent, straight forward, interesting, interested, logical, structured, respectful, enthusiastic, positive, memorable, entertaining, and always smile."
+        },
+        {
+          id: "open-self-inspection-pitch",
+          title: "Open Self Inspection Pitch",
+          tag: "Door Script",
+          pages: "Added Pitch",
+          content: "OPEN SELF INSPECTION PITCH\\n\\nHello, glad to catch you at home. My name is (__________). I work for a public adjusting firm named Equity Adjusters. I take it you’re the homeowner here?\\n\\nFantastic. We are property claims adjusters. We’re local and licensed in the greater Salt Lake area. We’re in your neighborhood today helping homeowners get their roofs paid for and replaced through homeowners insurance.\\n\\nWe carry the same license as the insurance companies, and we are licensed with the Department of Insurance in the State of Utah. What we do is perform inspections to determine whether there is enough storm-related damage for the insurance company to pay for a full roof replacement.\\n\\nAgain, my name is (__________). What was your name?\\n\\nPleasure to meet you, (__________).\\n\\nHow long have you owned the home?\\n\\nHow old is the roof?\\n\\nHave you had any repairs done to the roof before?\\n\\nHave you experienced any interior leaking?\\n\\nPerfect. What I’m going to do now is complete a quick inspection of the roof to see whether the property qualifies for the insurance company to pay for a full replacement.\\n\\nWhile I’m doing the inspection, do me a favor and locate your insurance information. The inspection should only take a few minutes, and I’ll come back down and review everything with you once I’m finished.\\n\\nPleasure meeting you, and I’ll be back down shortly."
+        }
+      ],
+      claimSteps: [
+        "Policy review/paperwork signed and filled out",
+        "Initial PQ Inspection",
+        "File claim/Schedule insurance inspection",
+        "Insurance Inspection",
+        "Negotiations/Estimate Review",
+        "Meet with Policy Holder to sign checks and discuss repair work",
+        "Construction",
+        "Invoice/Close out file"
+      ],
+      salesCycle: [
+        "Pre-opener",
+        "Intro/Greeting",
+        "Fact Finding/Qualifying",
+        "Presentation",
+        "Close",
+        "Referral"
+      ]
+    };
+
+    const state = {
+      active: DATA.sections[0].id,
+      query: "",
+      completed: {},
+      openCards: Object.fromEntries(DATA.sections.map(section => [section.id, true]))
+    };
+
+    const assignmentFields = [
+      ["who", "Who are You?", "Identify who you are..."],
+      ["whyMain", "Why are you here?", "Write why you are here..."],
+      ["commitMain", "What do you commit to?", "Define your commitments..."],
+      ["attrA", "Top 3 Attributes - A.", "Type here..."],
+      ["attrB", "Top 3 Attributes - B.", "Type here..."],
+      ["attrC", "Top 3 Attributes - C.", "Type here..."],
+      ["motivateA", "3 Things That Motivate You - A.", "Type here..."],
+      ["motivateB", "3 Things That Motivate You - B.", "Type here..."],
+      ["motivateC", "3 Things That Motivate You - C.", "Type here..."],
+      ["reasonA", "3 Reasons Why You Are Here - A.", "Type here..."],
+      ["reasonB", "3 Reasons Why You Are Here - B.", "Type here..."],
+      ["reasonC", "3 Reasons Why You Are Here - C.", "Type here..."],
+      ["bringA", "3 Things You Bring/Commit - A.", "Type here..."],
+      ["bringB", "3 Things You Bring/Commit - B.", "Type here..."],
+      ["bringC", "3 Things You Bring/Commit - C.", "Type here..."],
+      ["whoStatement", "Who Statement", "I AM..."],
+      ["commitmentStatement", "Commitment Statement", "I commit to..."]
+    ];
+
+    const quickAssignments = [
+      ["quickWho", "Who are you?", "Write your top 3 attributes."],
+      ["quickWhy", "Why are you here?", "Write 3 motivating factors and 3 reasons."],
+      ["quickCommit", "What do you commit to?", "Write 3 things you will bring to the table."],
+      ["quickVision", "Vision Statement", "Write your one-year personal, business, and financial vision."],
+      ["quickHabits", "Daily Habits", "Write the habits you will form every day."]
+    ];
+
+    function esc(value) {
+      return String(value).replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      }[char]));
+    }
+
+    function escapeRegExp(value) {
+      return String(value).split("").map(char => (
+        "-/\\^$*+?.()|[]{}".includes(char) ? "\\" + char : char
+      )).join("");
+    }
+
+    function highlight(value) {
+      const text = esc(value);
+      const query = state.query.trim();
+      if (!query) return text;
+      const regex = new RegExp("(" + escapeRegExp(query) + ")", "gi");
+      return text.replace(regex, "<mark>$1</mark>");
+    }
+
+    function splitLines(text) {
+      return String(text).split("\\n").filter(line => line.trim().length > 0);
+    }
+
+    function lineToHtml(line) {
+      const trimmed = line.trim();
+      const isHeading = trimmed.length > 8 && trimmed === trimmed.toUpperCase();
+
+      if (/^[A-Z]\\.?$/.test(trimmed)) {
+        return `<p><strong style="color:var(--cyan-soft)">${highlight(line)}</strong></p>`;
+      }
+
+      if (isHeading) {
+        return `<h3>${highlight(line)}</h3>`;
+      }
+
+      return `<p>${highlight(line)}</p>`;
+    }
+
+    function renderNav() {
+      const filtered = DATA.sections.filter(section => {
+        if (!state.query.trim()) return true;
+        const haystack = `${section.title} ${section.tag} ${section.content}`.toLowerCase();
+        return haystack.includes(state.query.trim().toLowerCase());
+      });
+
+      document.getElementById("nav").innerHTML = filtered.map(section => `
+        <button class="${state.active === section.id ? "active" : ""}" data-jump="${esc(section.id)}">
+          <span class="dot"></span>
+          <span style="flex:1;">
+            <span class="nav-title">${esc(section.title)}</span>
+            <span class="nav-sub">${esc(section.pages)}</span>
+          </span>
+          ${state.completed[section.id] ? "<span>Done</span>" : ""}
+        </button>
+      `).join("");
+    }
+
+    function renderTrackers() {
+      document.getElementById("claimSteps").innerHTML = DATA.claimSteps.map((step, index) => `
+        <div class="step">
+          <span class="step-num">${index + 1}</span>
+          <span>${esc(step)}</span>
+        </div>
+      `).join("");
+
+      document.getElementById("salesCycle").innerHTML = DATA.salesCycle.map((step, index) => `
+        <div class="cycle-step">
+          <small>Step ${index + 1}</small>
+          <div><strong>${esc(step)}</strong></div>
+        </div>
+      `).join("");
+    }
+
+    function renderQuickAssignments() {
+      document.getElementById("quickAssignments").innerHTML = quickAssignments.map(([id, title, placeholder]) => `
+        <label>
+          <span class="label">${esc(title)}</span>
+          <textarea data-answer="quick" id="${esc(id)}" placeholder="${esc(placeholder)}"></textarea>
+        </label>
+      `).join("");
+    }
+
+    function fieldRow(id, label) {
+      return `
+        <div class="field-row">
+          <span>${esc(label)}</span>
+          <textarea data-answer="assignment" id="${esc(id)}" placeholder="Type here..."></textarea>
+        </div>
+      `;
+    }
+
+    function fillableAssignmentHtml() {
+      return `
+        <div class="fillable">
+          <p style="margin:0 0 8px;color:var(--cyan-soft);font-weight:900;text-transform:uppercase;letter-spacing:.12em;font-size:13px;">Fillable Assignment 1</p>
+          <h3>Who, Why, Commit</h3>
+
+          <div class="fillable-grid">
+            <label>
+              <span class="label">Who are You?</span>
+              <textarea data-answer="assignment" id="who" placeholder="Identify who you are..."></textarea>
+            </label>
+            <label>
+              <span class="label">Why are you here?</span>
+              <textarea data-answer="assignment" id="whyMain" placeholder="Write why you are here..."></textarea>
+            </label>
+            <label>
+              <span class="label">What do you commit to?</span>
+              <textarea data-answer="assignment" id="commitMain" placeholder="Define your commitments..."></textarea>
+            </label>
+          </div>
+
+          <div class="two-col">
+            <div>
+              <h4>Write down the top 3 attributes that describe who you are:</h4>
+              ${fieldRow("attrA", "A.")}
+              ${fieldRow("attrB", "B.")}
+              ${fieldRow("attrC", "C.")}
+            </div>
+
+            <div>
+              <h4>Write down 3 things that motivate you:</h4>
+              ${fieldRow("motivateA", "A.")}
+              ${fieldRow("motivateB", "B.")}
+              ${fieldRow("motivateC", "C.")}
+            </div>
+
+            <div>
+              <h4>Write down 3 reasons why you are here:</h4>
+              ${fieldRow("reasonA", "A.")}
+              ${fieldRow("reasonB", "B.")}
+              ${fieldRow("reasonC", "C.")}
+            </div>
+
+            <div>
+              <h4>Write down 3 things you will bring to the table and commit to:</h4>
+              ${fieldRow("bringA", "A.")}
+              ${fieldRow("bringB", "B.")}
+              ${fieldRow("bringC", "C.")}
+            </div>
+          </div>
+
+          <div class="two-col" style="margin-top:16px;">
+            <label>
+              <span class="label">Who Statement</span>
+              <textarea data-answer="assignment" id="whoStatement" placeholder="I AM..."></textarea>
+            </label>
+            <label>
+              <span class="label">Commitment Statement</span>
+              <textarea data-answer="assignment" id="commitmentStatement" placeholder="I commit to..."></textarea>
+            </label>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderArticles() {
+      document.getElementById("articles").innerHTML = DATA.sections.map(section => {
+        const isOpen = state.openCards[section.id];
+
+        return `
+          <article id="${esc(section.id)}">
+            <button class="article-head" data-toggle="${esc(section.id)}">
+              <span class="badge">EA</span>
+              <span style="flex:1;">
+                <p class="article-meta">${esc(section.tag)} - ${esc(section.pages)}</p>
+                <h2>${esc(section.title)}</h2>
+              </span>
+              <span>${isOpen ? "Collapse" : "Expand"}</span>
+            </button>
+
+            ${isOpen ? `
+              <div class="article-body">
+                ${splitLines(section.content).map(lineToHtml).join("")}
+                ${section.id === "who-why-commit" ? fillableAssignmentHtml() : ""}
+
+                <div class="btn-row">
+                  <button class="btn ${state.completed[section.id] ? "btn-done" : "btn-primary"}" data-complete="${esc(section.id)}">
+                    ${state.completed[section.id] ? "Completed" : "Mark Complete"}
+                  </button>
+                  <button class="btn" data-copy="${esc(section.id)}">Copy Section</button>
+                </div>
+              </div>
+            ` : ""}
+          </article>
+        `;
+      }).join("");
+    }
+
+    function updateProgress() {
+      const progress = Math.round((Object.values(state.completed).filter(Boolean).length / DATA.sections.length) * 100);
+      document.getElementById("progressText").textContent = progress + "%";
+      document.getElementById("progressBar").style.width = progress + "%";
+    }
+
+    function renderAll() {
+      renderNav();
+      renderTrackers();
+      renderQuickAssignments();
+      renderArticles();
+      updateProgress();
+    }
+
+    function collectSubmission() {
+      const answers = [];
+
+      assignmentFields.forEach(([id, label]) => {
+        const element = document.getElementById(id);
+        answers.push(`${label}:\\n${element && element.value.trim() ? element.value.trim() : "[No answer provided]"}`);
+      });
+
+      quickAssignments.forEach(([id, label]) => {
+        const element = document.getElementById(id);
+        answers.push(`${label}:\\n${element && element.value.trim() ? element.value.trim() : "[No answer provided]"}`);
+      });
+
+      const name = document.getElementById("submitName").value.trim();
+      const contact = document.getElementById("submitContact").value.trim();
+
+      const body = [
+        "Equity Adjusters Handbook Submission",
+        "",
+        "Name:",
+        name || "[No name provided]",
+        "",
+        "Contact:",
+        contact || "[No contact provided]",
+        "",
+        "Answers:",
+        "",
+        answers.join("\\n\\n")
+      ].join("\\n");
+
+      const subject = "Employee Handbook Submission - " + (name || "New Submission");
+      window.location.href = "mailto:info@equityadjuster.com?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
+    }
+
+    document.getElementById("menuButton").addEventListener("click", () => {
+      document.getElementById("sidebar").classList.toggle("open");
+    });
+
+    document.getElementById("search").addEventListener("input", event => {
+      state.query = event.target.value;
+      renderNav();
+      renderArticles();
+    });
+
+    document.getElementById("submitButton").addEventListener("click", collectSubmission);
+
+    document.body.addEventListener("click", event => {
+      const jump = event.target.closest("[data-jump]");
+      if (jump) {
+        state.active = jump.dataset.jump;
+        renderNav();
+        document.getElementById(state.active)?.scrollIntoView({ behavior: "smooth", block: "start" });
+        document.getElementById("sidebar").classList.remove("open");
+      }
+
+      const toggle = event.target.closest("[data-toggle]");
+      if (toggle) {
+        state.openCards[toggle.dataset.toggle] = !state.openCards[toggle.dataset.toggle];
+        renderArticles();
+      }
+
+      const complete = event.target.closest("[data-complete]");
+      if (complete) {
+        state.completed[complete.dataset.complete] = !state.completed[complete.dataset.complete];
+        renderAll();
+      }
+
+      const copy = event.target.closest("[data-copy]");
+      if (copy) {
+        const section = DATA.sections.find(item => item.id === copy.dataset.copy);
+        if (section && navigator.clipboard) navigator.clipboard.writeText(section.content);
+      }
+    });
+
+    renderAll();
+  </script>
+</body>
+</html>
